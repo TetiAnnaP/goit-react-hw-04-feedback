@@ -1,38 +1,44 @@
-import { Component } from 'react';
-import SectionTitle from "./SectionTitle/SectionTitle"
-import FeedbackOptions from "./FeedbackOptions/FeedbackOptions";
+import SectionTitle from './SectionTitle/SectionTitle';
+import FeedbackOptions from './FeedbackOptions/FeedbackOptions';
 import Statistics from './Statistics/Statistics';
 import NotificationMessage from './NotificationMessage/NotificationMessage';
+import PropTypes from 'prop-types';
+import { useState } from 'react';
 
-export class App extends Component  {
-   
-    state = {
-        good: 0,
-        neutral: 0,
-        bad: 0,
-  }
+const App = () => {
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
 
-   countTotalFeedback = () => {
-       return this.state.good + this.state.neutral + this.state.bad
+  const countTotalFeedback = () => {
+    return good + neutral + bad;
+  };
+
+  const countPositiveFeedbackPercentage = () => {
+    const total = countTotalFeedback();
+    if (total === 0) {
+      return 0;
     }
+    return Math.round((good * 100) / countTotalFeedback());
+  };
 
-    countPositiveFeedbackPercentage = () => {
-        const total = this.countTotalFeedback();
-        if (total === 0) {
-            return 0;
-        }
-        return Math.round(this.state.good * 100 / this.countTotalFeedback());
+  const handleButtonClick = key => {
+    switch (key) {
+      case 'good':
+        setGood(prev => prev + 1);
+        break;
+      case 'neutral':
+        setNeutral(prev => prev + 1);
+        break;
+      case 'bad':
+        setBad(prev => prev + 1);
+        break;
+      default:
+        break;
     }
+  };
 
-    handleButtonClick = (key) => {
-        this.setState(prevState => ({
-            [key]: prevState[key] +=1
-        }))
-    }
-
-  
-  render() {
-    return (
+  return (
     <div
       style={{
         height: '100vh',
@@ -40,25 +46,33 @@ export class App extends Component  {
         justifyContent: 'center',
         alignItems: 'center',
         fontSize: 40,
-          color: '#010101'
-        
+        color: '#010101',
       }}
-      >
-        
-        <SectionTitle>
+    >
+      <SectionTitle>
+        <FeedbackOptions handleButtonClick={handleButtonClick} />
 
-          <FeedbackOptions 
-          handleButtonClick={this.handleButtonClick} />
-        
-         {this.countTotalFeedback() === 0 ? <NotificationMessage/> : <Statistics             
-          state={this.state}
-          countTotalFeedback={this.countTotalFeedback}
-          countPositiveFeedbackPercentage={this.countPositiveFeedbackPercentage}/>}
-          
-      
-        </SectionTitle>
-        
+        {countTotalFeedback() === 0 ? (
+          <NotificationMessage />
+        ) : (
+          <Statistics
+            // state={this.state}
+            good={good}
+            neutral={neutral}
+            bad={bad}
+            countTotalFeedback={countTotalFeedback}
+            countPositiveFeedbackPercentage={countPositiveFeedbackPercentage}
+          />
+        )}
+      </SectionTitle>
     </div>
   );
- }
 };
+
+App.propTypes = {
+  good: PropTypes.number,
+  neutral: PropTypes.number,
+  bad: PropTypes.number,
+};
+
+export default App;
